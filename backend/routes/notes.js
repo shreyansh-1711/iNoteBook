@@ -48,6 +48,7 @@ router.post('/addnote', fetchuser, [
 
 // Route-3 Update the existing Note
 router.put('/updatenote/:id', fetchuser, async (req, res) => {
+    
     const { title, description, tag } = req.body;
     // create new note 
     const newNote = {};
