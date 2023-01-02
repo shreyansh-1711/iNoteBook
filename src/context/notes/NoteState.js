@@ -5,9 +5,7 @@ import { useState } from "react";
 
 const NoteState = (props) => {
   const host = "https://localhost:5000"
-
   const noteInitial = []
-
   const [notes, setNotes] = useState(noteInitial)
 
 
