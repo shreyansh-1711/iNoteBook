@@ -13,6 +13,7 @@ const Notes = () => {
     }, [])
          
     return (
+        
         <>
             <AddNote />
             <div className="row my-3">
