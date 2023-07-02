@@ -1,43 +1,18 @@
+const connectToMongo = require(`${__dirname}/db`);
 const express = require('express');
-const dotenv = require('dotenv');
-const connectToMongo = require('./database ');
-const { errorHandler, notFound }= require('./middleware/error.js');
-const path= require('path');
-var cors = require('cors');
-
-dotenv.config();
+const cors = require('cors');
 
 connectToMongo();
-
-
 const app = express();
+const port = 5000;
+
 app.use(cors());
+app.use(express.json());
 
-app.use(express.json());// to accept json data
+// AVAIABLE ROUTES
+app.use('/api/auth', require('./routes/authRouter'));
+app.use('/api/notes', require('./routes/notesRouter'));
 
-//Available Routes
-app.use('/api/auth', require('./routes/auth'))
-app.use('/api/notes', require('./routes/notes'))
-
-// --------------------------deployment------------------------------
-
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "frontend", "build")));
-
-//   app.get("*", (req, res) =>
-//     res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"))
-//   );
-// } else {
-//   app.get("/", (req, res) => {
-//     res.send("API is running..");
-//   });
-// }
-// --------------------------deployment------------------------------
-
-// Error Handling middlewares
-app.use(notFound);
-app.use(errorHandler);
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, console.log(`iNotebook backend listening on port ${PORT}`))
+app.listen(port, ()=> {
+    console.log(`server listening at http://localhost:${port}`);
+});

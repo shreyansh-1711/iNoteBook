@@ -1,68 +1,94 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import NoteContext from '../context/notes/noteContext'
-import EditNote from './EditNote';
-import NoteItems from './NoteItems';
-import { useNavigate } from 'react-router-dom'
+import noteContext from '../context/notes/noteContext';
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import Noteitem from './Noteitem';
+import AddNote from './AddNote';
+import { useNavigate} from 'react-router-dom';
+const Notes = (props) => {
+  const context = useContext(noteContext);
+  const [note, setNote] = useState({id:"",etitle: "", edescription: "", etag: ""})
 
-function Notes(props) {
-    const context = useContext(NoteContext);
-    const { notes, getNote, editNote } = context;
-    const [enote, setenote] = useState({ id: "", title: "", description: "", tag: "default" })
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (localStorage.getItem('token')) {
-            getNote()
-        } else {
-            navigate('/login')
-
-        }
-        // eslint-disable-next-line
-
-    }, [])
-
-    const ref = useRef(null);
-    const refclose = useRef(null);
-
-    const updateNote = (currentNote) => {
-        ref.current.click()
-        setenote(currentNote)
+  const { notes, getNotes, editNote } = context;
+  let navigate=useNavigate();
+  useEffect(() => {
+    if(localStorage.getItem('token')){
+      getNotes()
     }
-
-    const onchange = (e) => {
-        setenote({ ...enote, [e.target.name]: e.target.value })
+    else{
+      navigate("/login")
     }
+  }, [])
+  const ref = useRef(null)
+  const refClose = useRef(null)
+  
 
-    const handleEdit = (e) => {
-        e.preventDefault();
-        editNote(enote._id, enote.title, enote.description, enote.tag)
-        refclose.current.click()
+  const updateNote = (currentNote) => {
+    ref.current.click();
+    setNote({id: currentNote._id, etitle: currentNote.title, edescription: currentNote.description, etag: currentNote.tag})
+  }
 
-        props.showAlert("Note is updated successfully", "success")
-    }
+  const handleClick=(e)=>{
+    console.log("Updating the note", note)
+    editNote(note.id, note.etitle, note.edescription, note.etag)
+    refClose.current.click();
+    props.showAlert("Updated successfully", "success")
+}
 
+const onChange=(e)=>{
+    setNote({...note, [e.target.name]: e.target.value})
+}
 
-    return (
-        <>
-            <div className='my-5' >
-                <div >
-                    <h3>🧾 Your Notes:</h3>
-                </div>
+  return (
+    <>
+      <AddNote showAlert={props.showAlert} />
+      <button ref={ref} type="button" className="btn btn-primary d-none" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Launch demo modal
+      </button>
 
+      <div  className="modal fade" id="exampleModal" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">Edit Note</h5>
+              <button type="button" className="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
             </div>
-            <EditNote reference={ref} closeref={refclose} enote={enote} onchange={onchange} handleChange={handleEdit} />
-
-            <div className='row mb-5'>
-                <div className='mx-3'>
-                    {notes.length === 0 && "No notes to display.."}
+            <div className="modal-body">
+              <form>
+                <div className="mb-3">
+                  <label htmlFor="title" className="form-label">Title</label>
+                  <input type="text" className="form-control" id="etitle" name="etitle" value={note.etitle} aria-describedby="emailHelp" onChange={onChange} minLength={5} required/>
+                  <div id="emailHelp" className="form-text"></div>
                 </div>
-                {notes.map((note) => {
-                    return <NoteItems key={note._id} note={note} updateNote={updateNote} showAlert={props.showAlert} />
-                })}
-
+                <div className="mb-3">
+                  <label htmlFor="description" className="form-label">Description</label>
+                  <input type="text" className="form-control" id="edescription" name="edescription" value={note.edescription} onChange={onChange} minLength={5} required/>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="tag" className="form-label">Tag</label>
+                  <input type="text" className="form-control" id="etag" name="etag" value={note.etag} onChange={onChange} />
+                </div>
+              </form>
             </div>
-        </>
-    )
+            <div className="modal-footer">
+              <button ref={refClose} type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button disabled={note.etitle.length<5 || note.edescription.length<5 } onClick={handleClick} type="button" className="btn btn-primary">Update Note</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="my-3 row">
+        <h1 >Your notes</h1>
+        <div className="container mx-2">
+          {notes.length===0 && "No notes to display"}
+        </div>
+        {notes.map((note) => {
+          console.log(note._id)
+          return <Noteitem key={note._id} updateNote={updateNote} showAlert={props.showAlert} note={note} />;
+        })}
+      </div>
+    </>
+  )
 }
 
 export default Notes
